@@ -291,12 +291,13 @@ def main():
 
     net_inp = model.get_layer(name='the_input').input
     net_out = model.get_layer(name='softmax').output
+    model.save("model_lpd_ocr_f.h5")
 
-    model_json = model.to_json()
-    with open("model_lpd_ocr.json", "w") as json_file:
-        json_file.write(model_json)
-        #serialize weights to HDF5
-    model.save_weights("model_lpd_ocr.h5")
+    # model_json = model.to_json()
+    # with open("model_lpd_ocr.json", "w") as json_file:
+    #     json_file.write(model_json)
+    #     #serialize weights to HDF5
+    # model.save_weights("model_lpd_ocr.h5")
 
     for inp_value, _ in tiger_test.next_batch():
         bs = inp_value['the_input'].shape[0]
