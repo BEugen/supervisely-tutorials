@@ -21,7 +21,7 @@ sess = tf.Session()
 K.set_session(sess)
 
 MODEL_NAME = "model_lpd"
-MODEL_OCR_NAME = "model_lpd_ocr_f"
+MODEL_OCR_NAME = "model_lpd_ocr"
 OPTIM = Adam()
 PATH_IMG = "../data/experement1/artificial_test/img/"
 letters = sorted(list({'2', '6', '9', '1', '4', 'A', '7', 'M', 'C', 'Y', '0', 'H', 'B',
@@ -111,7 +111,7 @@ def get_model(img_w):
     # clipnorm seems to speeds up convergence
     sgd = SGD(lr=0.02, decay=1e-6, momentum=0.9, nesterov=True, clipnorm=5)
 
-    loaded_model = load_model(MODEL_OCR_NAME + '.h5')
+    loaded_model = load_model(MODEL_OCR_NAME + '.h5', compile=False)
 
     # the loss calc occurs elsewhere, so use a dummy lambda func for the loss
     loaded_model.compile(loss={'ctc': lambda y_true, y_pred: y_pred}, optimizer=sgd)

@@ -18,6 +18,8 @@ from collections import Counter
 from keras.callbacks import TensorBoard
 import tensorflow as tf
 from time import time
+import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
 
 sess = tf.Session()
 K.set_session(sess)
@@ -229,7 +231,7 @@ def train(img_w, load=False):
     sgd = SGD(lr=0.02, decay=1e-6, momentum=0.9, nesterov=True, clipnorm=5)
 
     if load:
-        model = load_model('./tmp_model.h5', compile=False)
+        model = load_model('model_lpd_ocr_f.h5', compile=False)
     else:
         model = Model(inputs=[input_data, labels, input_length, label_length], outputs=loss_out)
 
@@ -285,19 +287,19 @@ def main():
         print('4) label_length (length of plate number): %d' % inp['label_length'][0])
         break
 
-    model = train(128, load=False)
+    model = train(128, load=True)
     tiger_test = TextImageGenerator('../data/test/anpr_ocr/test/', 128, 64, 8, 4)
     tiger_test.build_data()
 
     net_inp = model.get_layer(name='the_input').input
     net_out = model.get_layer(name='softmax').output
-    model.save("model_lpd_ocr_f.h5")
+    #model.save("model_lpd_ocr_f.h5")
 
     # model_json = model.to_json()
     # with open("model_lpd_ocr.json", "w") as json_file:
     #     json_file.write(model_json)
     #     #serialize weights to HDF5
-    # model.save_weights("model_lpd_ocr.h5")
+    #model.save("model_lpd_ocr.h5")
 
     for inp_value, _ in tiger_test.next_batch():
         bs = inp_value['the_input'].shape[0]
@@ -310,29 +312,29 @@ def main():
             text = ''.join(list(map(lambda x: letters[int(x)], label)))
             texts.append(text)
 
-        # for i in range(bs):
-        #     fig = plt.figure(figsize=(10, 10))
-        #     outer = gridspec.GridSpec(2, 1, wspace=10, hspace=0.1)
-        #     ax1 = plt.Subplot(fig, outer[0])
-        #     fig.add_subplot(ax1)
-        #     ax2 = plt.Subplot(fig, outer[1])
-        #     fig.add_subplot(ax2)
-        #     print('Predicted: %s\nTrue: %s' % (pred_texts[i], texts[i]))
-        #     img = X_data[i][:, :, 0].T
-        #     ax1.set_title('Input img')
-        #     ax1.imshow(img, cmap='gray')
-        #     ax1.set_xticks([])
-        #     ax1.set_yticks([])
-        #     ax2.set_title('Acrtivations')
-        #     ax2.imshow(net_out_value[i].T, cmap='binary', interpolation='nearest')
-        #     ax2.set_yticks(list(range(len(letters) + 1)))
-        #     ax2.set_yticklabels(letters + ['blank'])
-        #     ax2.grid(False)
-        #     for h in np.arange(-0.5, len(letters) + 1 + 0.5, 1):
-        #         ax2.axhline(h, linestyle='-', color='k', alpha=0.5, linewidth=1)
+        for i in range(bs):
+            fig = plt.figure(figsize=(10, 10))
+            outer = gridspec.GridSpec(2, 1, wspace=10, hspace=0.1)
+            ax1 = plt.Subplot(fig, outer[0])
+            fig.add_subplot(ax1)
+            ax2 = plt.Subplot(fig, outer[1])
+            fig.add_subplot(ax2)
+            print('Predicted: %s\nTrue: %s' % (pred_texts[i], texts[i]))
+            img = X_data[i][:, :, 0].T
+            ax1.set_title('Input img')
+            ax1.imshow(img, cmap='gray')
+            ax1.set_xticks([])
+            ax1.set_yticks([])
+            ax2.set_title('Acrtivations')
+            ax2.imshow(net_out_value[i].T, cmap='binary', interpolation='nearest')
+            ax2.set_yticks(list(range(len(letters) + 1)))
+            ax2.set_yticklabels(letters + ['blank'])
+            ax2.grid(False)
+            for h in np.arange(-0.5, len(letters) + 1 + 0.5, 1):
+                ax2.axhline(h, linestyle='-', color='k', alpha=0.5, linewidth=1)
 
-            # ax.axvline(x, linestyle='--', color='k')
-            #plt.show()
+            #ax.axvline(x, linestyle='--', color='k')
+            plt.show()
         break
 
 if __name__ == '__main__':
